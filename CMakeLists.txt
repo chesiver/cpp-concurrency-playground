@@ -1,14 +1,24 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.14)
 
-project(template)
+project(future)
 
 set(CMAKE_C_COMPILER "/usr/bin/gcc")
 set(CMAKE_CXX_COMPILER "/usr/bin/g++")
 
+set(CMAKE_CXX_STANDARD 20)  # Set the desired C++ standard (e.g., 11, 14, 17, 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)  # Make sure the compiler supports the specified standard
 
 find_package(fmt CONFIG REQUIRED)
+find_package(benchmark CONFIG REQUIRED)
 find_package(folly CONFIG REQUIRED)
 
-add_executable(template main.cpp)
+find_path(BSHOSHANY_THREAD_POOL_INCLUDE_DIRS "BS_thread_pool.hpp")
+find_path(TASK_THREAD_POOL_INCLUDE_DIRS "task_thread_pool.hpp")
 
-target_link_libraries(template PRIVATE fmt::fmt Folly::folly)
+add_executable(future main.cpp)
+
+target_include_directories(future PRIVATE ${BSHOSHANY_THREAD_POOL_INCLUDE_DIRS})
+target_include_directories(future PRIVATE ${TASK_THREAD_POOL_INCLUDE_DIRS})
+
+target_link_libraries(future PRIVATE fmt::fmt)
+target_link_libraries(future PRIVATE benchmark::benchmark Folly::folly)

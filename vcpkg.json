@@ -1,6 +1,9 @@
 {
   "dependencies": [
+    "benchmark",
+    "bshoshany-thread-pool",
     "fmt",
-    "folly"
+    "folly",
+    "task-thread-pool"
   ]
 }
