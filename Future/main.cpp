@@ -14,9 +14,23 @@
 #include "task_thread_pool.hpp"
 #include "BS_thread_pool.hpp"
 
+#include "simple_thread_pool/simple_thread_pool.h"
+
 void simple_task() {
     auto str = std::string("LazyOrEager") + "LazyOrEager";
 }
+
+simple_thread_pool::thread_pool sp_pool(16);
+
+static void BM_StdFutureSPThreadPool(benchmark::State& state) {
+    for (auto _ : state) {
+        for (int i = 0; i < 25; i += 1) {
+            sp_pool.enqueue(simple_task);
+        }
+        sp_pool.wait_for_all();
+    }
+}
+
 
 dp::thread_pool dp_pool(16);
 
@@ -68,6 +82,7 @@ static void BM_FollyFutureThreadPool(benchmark::State& state) {
 }
 
 // Register the function as a benchmark
+BENCHMARK(BM_StdFutureSPThreadPool);
 BENCHMARK(BM_StdFutureDPThreadPool);
 BENCHMARK(BM_StdFutureBSThreadPool);
 BENCHMARK(BM_StdFutureTaskThreadPool);

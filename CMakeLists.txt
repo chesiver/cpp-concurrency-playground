@@ -18,6 +18,8 @@ find_path(BSHOSHANY_THREAD_POOL_INCLUDE_DIRS "BS_thread_pool.hpp")
 find_path(TASK_THREAD_POOL_INCLUDE_DIRS "task_thread_pool.hpp")
 
 add_executable(future Future/main.cpp)
+add_executable(simple_thread_pool Future/simple_thread_pool/simple_thread_pool.cpp)
+
 
 target_include_directories(future PRIVATE ${BSHOSHANY_THREAD_POOL_INCLUDE_DIRS})
 target_include_directories(future PRIVATE ${TASK_THREAD_POOL_INCLUDE_DIRS})
