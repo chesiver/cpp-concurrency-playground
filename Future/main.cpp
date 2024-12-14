@@ -1,24 +1,20 @@
 
-#include <iostream>
-#include <string>
-#include <vector>
-
 #include <benchmark/benchmark.h>
-
 #include <folly/Function.h>
 #include <folly/executors/CPUThreadPoolExecutor.h>
 #include <folly/executors/IOThreadPoolExecutor.h>
 #include <folly/futures/Future.h>
 
-#include "dp_thread_pool/thread_pool.h"
-#include "task_thread_pool.hpp"
+#include <iostream>
+#include <string>
+#include <vector>
+
 #include "BS_thread_pool.hpp"
-
+#include "dp_thread_pool/thread_pool.h"
 #include "simple_thread_pool/simple_thread_pool.h"
+#include "task_thread_pool.hpp"
 
-void simple_task() {
-    auto str = std::string("LazyOrEager") + "LazyOrEager";
-}
+void simple_task() { auto str = std::string("LazyOrEager") + "LazyOrEager"; }
 
 simple_thread_pool::thread_pool sp_pool(16);
 
@@ -30,7 +26,6 @@ static void BM_StdFutureSPThreadPool(benchmark::State& state) {
         sp_pool.wait_for_all();
     }
 }
-
 
 dp::thread_pool dp_pool(16);
 

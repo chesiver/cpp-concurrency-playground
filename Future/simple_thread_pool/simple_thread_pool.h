@@ -14,7 +14,7 @@
 #include <vector>
 
 namespace simple_thread_pool {
-    
+
 class thread_pool {
    public:
     explicit thread_pool(size_t);
