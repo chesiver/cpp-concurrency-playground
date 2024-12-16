@@ -14,7 +14,11 @@
 #include "simple_thread_pool/simple_thread_pool.h"
 #include "task_thread_pool.hpp"
 
-void simple_task() { auto str = std::string("LazyOrEager") + "LazyOrEager"; }
+void simple_task() { 
+    auto str1 = std::string("LazyOrEager") + "LazyOrEager";
+    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    auto str2 = std::string("LazyOrEager") + "LazyOrEager"; 
+}
 
 simple_thread_pool::thread_pool sp_pool(16);
 
