@@ -18,9 +18,9 @@ namespace simple_thread_pool {
 class thread_pool {
    public:
     explicit thread_pool(size_t);
-    template <class F, class... Args>
-    auto enqueue(F&& f, Args&&... args)
-        -> std::future<typename std::result_of<F(Args...)>::type>;
+    template <typename F, typename... Args,
+              typename ReturnType = std::invoke_result_t<F &&, Args &&...>>
+    auto enqueue(F &&f, Args &&...args) -> std::future<ReturnType>;
     auto wait_for_all() -> void;
     ~thread_pool();
 
@@ -40,14 +40,13 @@ class thread_pool {
 // the constructor just launches some amount of _workers
 thread_pool::thread_pool(size_t threads) {
     for (size_t i = 0; i < threads; i += 1)
-        _workers.emplace_back([this] (std::stop_token stop_token){
+        _workers.emplace_back([this](std::stop_token stop_token) {
             while (true) {
                 std::function<void()> task;
                 {
                     std::unique_lock<std::mutex> lock(_queue_mutex);
-                    _condition.wait(lock, stop_token, [this] {
-                        return !_tasks.empty();
-                    });
+                    _condition.wait(lock, stop_token,
+                                    [this] { return !_tasks.empty(); });
                     if (stop_token.stop_requested()) {
                         break;
                     }
@@ -69,16 +68,15 @@ thread_pool::thread_pool(size_t threads) {
 }
 
 // add new work item to the pool
-template <class F, class... Args>
-auto thread_pool::enqueue(F&& f, Args&&... args)
-    -> std::future<typename std::result_of<F(Args...)>::type> {
-    using return_type = typename std::result_of<F(Args...)>::type;
-    auto task = std::make_shared<std::packaged_task<return_type()>>(
+template <typename F, typename... Args,
+          typename ReturnType = std::invoke_result_t<F &&, Args &&...>>
+auto thread_pool::enqueue(F &&f, Args &&...args) -> std::future<ReturnType> {
+    auto task = std::make_shared<std::packaged_task<ReturnType()>>(
         std::bind(std::forward<F>(f), std::forward<Args>(args)...));
-    std::future<return_type> res = task->get_future();
+    std::future<ReturnType> res = task->get_future();
     {
         std::unique_lock<std::mutex> lock(_queue_mutex);
-        _tasks.emplace([task]() { (*task)(); });
+        _tasks.emplace([task]() { std::invoke(*task); });
     }
     _condition.notify_one();
     return res;
@@ -92,7 +90,7 @@ auto thread_pool::wait_for_all() -> void {
 
 simple_thread_pool::thread_pool::~thread_pool() {
     wait_for_all();
-    for (auto &worker: _workers) {
+    for (auto &worker : _workers) {
         worker.request_stop();
     }
 }
