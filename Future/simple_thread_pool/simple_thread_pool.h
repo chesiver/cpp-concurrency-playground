@@ -88,7 +88,7 @@ auto thread_pool::wait_for_all() -> void {
     }
 }
 
-simple_thread_pool::thread_pool::~thread_pool() {
+thread_pool::~thread_pool() {
     wait_for_all();
     for (auto &worker : _workers) {
         worker.request_stop();
