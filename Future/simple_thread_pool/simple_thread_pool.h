@@ -65,7 +65,6 @@ thread_pool::thread_pool(size_t threads) {
                     _task_completed.notify_one();
                 }
             }
-            std::cout << "end of worker thread\n";
         });
 }
 
